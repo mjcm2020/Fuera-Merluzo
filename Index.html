@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fuera Merluzo! — Cuenta regresiva</title>
+  <meta name="description" content="Cuenta regresiva hasta el fin del mandato presidencial en Chile." />
+  <style>
+    :root{
+      --bg:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --card:#111827cc; --accent:#60a5fa;
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;
+      color:var(--fg);
+      background:
+        radial-gradient(1200px 800px at 10% 10%, #1e293b 0, transparent 60%),
+        radial-gradient(1000px 600px at 90% 90%, #0b1222 0, transparent 60%),
+        var(--bg);
+      display:grid; place-items:center; padding:24px;
+    }
+    .wrap{
+      width:min(920px, 94vw); text-align:center; background:var(--card);
+      border:1px solid #1f2937; border-radius:18px;
+      padding:28px clamp(18px,4vw,36px);
+      box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter: blur(6px);
+    }
+    h1{ font-size:clamp(22px, 2.4vw, 34px); margin:0 0 16px; letter-spacing:.2px; }
+    .timer{ display:flex; justify-content:center; gap:clamp(10px, 2.4vw, 18px); flex-wrap:wrap; margin-top:20px; }
+    .unit{
+      background:#0b1020; border:1px solid #1f2937; border-radius:16px; min-width: 130px; padding:18px 14px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .value{ font-variant-numeric:tabular-nums lining-nums; font-weight:700; font-size:clamp(36px, 7.6vw, 64px); line-height:1; }
+    .label{ margin-top:8px; color:var(--muted); font-size:clamp(12px,1.6vw,14px); text-transform:uppercase; letter-spacing:1.6px; }
+    .done{ color:var(--accent); font-weight:600; }
+    .badge{
+      max-width: 250px; /* límite en pantallas grandes */
+      width: 100%;      /* ocupa todo el ancho disponible hasta 250px */
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+    footer{ margin-top:14px; font-size:12px; color:#8aa4c6; }
+    a{ color:#93c5fd }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-live="polite">
+    <h1 id="headline">Fuera Merluzo!</h1>
+
+    <!-- Imagen local -->
+    <img src="merluza.png"
+         alt="Cabeza de merluza con símbolo de prohibición"
+         class="badge">
+
+    <section class="timer" aria-label="Cuenta regresiva">
+      <div class="unit" aria-live="off">
+        <div class="value" id="days">--</div>
+        <div class="label">Días</div>
+      </div>
+      <div class="unit" aria-live="off">
+        <div class="value" id="hours">--</div>
+        <div class="label">Horas</div>
+      </div>
+      <div class="unit" aria-live="off">
+        <div class="value" id="minutes">--</div>
+        <div class="label">Minutos</div>
+      </div>
+      <div class="unit" aria-live="off">
+        <div class="value" id="seconds">--</div>
+        <div class="label">Segundos</div>
+      </div>
+    </section>
+
+    <footer><span id="tz"></span></footer>
+  </main>
+
+  <script>
+    const TARGET_ISO = '2026-03-11T12:00:00-03:00'; // Fin del mandato
+
+    const target = new Date(TARGET_ISO);
+    const $d = document.getElementById('days');
+    const $h = document.getElementById('hours');
+    const $m = document.getElementById('minutes');
+    const $s = document.getElementById('seconds');
+    const $headline = document.getElementById('headline');
+    const $tz = document.getElementById('tz');
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+
+    function render(){
+      const now = new Date();
+      let diff = target - now;
+
+      if (diff <= 0){
+        $d.textContent = '00';
+        $h.textContent = '00';
+        $m.textContent = '00';
+        $s.textContent = '00';
+        $headline.innerHTML = 'Fuera Merluzo! — <span class="done">terminó</span>.';
+        return;
+      }
+
+      const SEC = 1000, MIN = 60*SEC, HOUR = 60*MIN, DAY = 24*HOUR;
+
+      const days = Math.floor(diff / DAY); diff -= days*DAY;
+      const hours = Math.floor(diff / HOUR); diff -= hours*HOUR;
+      const minutes = Math.floor(diff / MIN); diff -= minutes*MIN;
+      const seconds = Math.floor(diff / SEC);
+
+      $d.textContent = pad(days);
+      $h.textContent = pad(hours);
+      $m.textContent = pad(minutes);
+      $s.textContent = pad(seconds);
+    }
+
+    try{
+      $tz.textContent = Intl.DateTimeFormat(undefined,{timeZoneName:'long'}).format(new Date());
+    }catch(e){}
+
+    render();
+    setInterval(render, 1000);
+  </script>
+</body>
+</html>
+
